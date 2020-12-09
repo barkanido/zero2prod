@@ -27,10 +27,6 @@ pub struct DatabaseSettings {
 }
 
 impl DatabaseSettings {
-    pub fn with_db(&self) -> PgConnectOptions {
-        self.without_db().database(&self.database_name)
-    }
-
     pub fn without_db(&self) -> PgConnectOptions {
         let ssl_mode = if self.require_ssl {
             PgSslMode::Require
@@ -44,17 +40,28 @@ impl DatabaseSettings {
             .port(self.port)
             .ssl_mode(ssl_mode)
     }
+
+    pub fn with_db(&self) -> PgConnectOptions {
+        self.without_db().database(&self.database_name)
+    }
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let mut settings = config::Config::default();
     let base_path = std::env::current_dir().expect("Failed to determine the current directory");
     let configuration_directory = base_path.join("configuration");
+
+    // Read the "default" configuration file
     settings.merge(config::File::from(configuration_directory.join("base")).required(true))?;
+
+    // Detect the running environment.
+    // Default to `local` if unspecified.
     let environment: Environment = std::env::var("APP_ENVIRONMENT")
         .unwrap_or_else(|_| "local".into())
         .try_into()
         .expect("Failed to parse APP_ENVIRONMENT.");
+
+    // Layer on the environment-specific values.
     settings.merge(
         config::File::from(configuration_directory.join(environment.as_str())).required(true),
     )?;
@@ -66,6 +73,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     settings.try_into()
 }
 
+/// The possible runtime environment for our application.
 pub enum Environment {
     Local,
     Production,
@@ -88,7 +96,7 @@ impl TryFrom<String> for Environment {
             "local" => Ok(Self::Local),
             "production" => Ok(Self::Production),
             other => Err(format!(
-                "{} is not a supported environment. Use either 'Local' or 'production'",
+                "{} is not a supported environment. Use either `local` or `production`.",
                 other
             )),
         }
