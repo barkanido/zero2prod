@@ -13,6 +13,7 @@ pub struct FormData {
 
 impl TryInto<NewSubscriber> for FormData {
     type Error = String;
+
     fn try_into(self) -> Result<NewSubscriber, Self::Error> {
         let name = SubscriberName::parse(self.name)?;
         let email = SubscriberEmail::parse(self.email)?;
@@ -32,8 +33,6 @@ pub async fn subscribe(
     form: web::Form<FormData>,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, HttpResponse> {
-    // `web::Form` is a wrapper around `FormData`
-    // `form.0` gives us access to the underlying `FormData`
     let new_subscriber = form
         .0
         .try_into()

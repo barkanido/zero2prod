@@ -7,7 +7,7 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     let body = "name=le%20guin&email=ursula_le_guin%40gmail.com";
 
     // Act
-    let response = app.post_subsrcriptions(body.into()).await;
+    let response = app.post_subscriptions(body.into()).await;
 
     // Assert
     assert_eq!(200, response.status().as_u16());
@@ -33,7 +33,8 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
 
     for (invalid_body, error_message) in test_cases {
         // Act
-        let response = app.post_subsrcriptions(invalid_body.into()).await;
+        let response = app.post_subscriptions(invalid_body.into()).await;
+
         // Assert
         assert_eq!(
             400,
@@ -46,7 +47,7 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
 }
 
 #[actix_rt::test]
-async fn subscribe_returns_a_400_when_fields_are_present_but_empty() {
+async fn subscribe_returns_a_400_when_fields_are_present_but_invalid() {
     // Arrange
     let app = spawn_app().await;
     let test_cases = vec![
@@ -57,12 +58,13 @@ async fn subscribe_returns_a_400_when_fields_are_present_but_empty() {
 
     for (body, description) in test_cases {
         // Act
-        let response = app.post_subsrcriptions(body.into()).await;
+        let response = app.post_subscriptions(body.into()).await;
+
         // Assert
         assert_eq!(
             400,
             response.status().as_u16(),
-            "The API did not return a 400 OK when the payload was {}.",
+            "The API did not return a 400 Bad Request when the payload was {}.",
             description
         );
     }

@@ -9,9 +9,9 @@ services:
     dockerfile_path: Dockerfile
     source_dir: .
     github:
-      branch: master
+      branch: root-chapter-07-part1
       deploy_on_push: true
-      repo: barkanido/zero2prod
+      repo: LukeMathWalker/zero-to-production
     # Active probe used by DigitalOcean's to ensure our application is healthy
     health_check:
       # The path to our health check endpoint! It turned out to be useful in the end!

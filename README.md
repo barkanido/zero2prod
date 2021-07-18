@@ -1,8 +1,12 @@
+# Zero To Production / Code (Chapter 7 - Part 1)
 
-# zero2prod
-[![Build Status](https://travis-ci.com/barkanido/zero2prod.svg?branch=master)](https://travis-ci.com/barkanido/zero2prod)
+<div align="center"><a href="https://zero2prod.com" target="_blank"><img src="https://static-2.gumroad.com/res/gumroad/3629854790655/asset_previews/bc9026cad3ece1746327c1d70218f602/retina/rsz_zero_to_production_punk.png" /></a></div>
 
-following https://www.lpalmieri.com/
+[Zero To Production In Rust](https://zero2prod.com) is an opinionated introduction to backend development using Rust.
+
+This repository serves as supplementary material for [the book](https://zero2prod.com/): it hosts snapshots of the codebase of our email newsletter project at end of each chapter.
+
+**This branch is a snapshot of the project at the end of Chapter 7 - Part 1.**
 
 ## Pre-requisite
 

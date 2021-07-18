@@ -1,12 +1,11 @@
-use crate::{
-    configuration::{DatabaseSettings, Settings},
-    email_client::EmailClient,
-    routes::{health_check, subscribe},
-};
+use crate::configuration::{DatabaseSettings, Settings};
+use crate::email_client::EmailClient;
+use crate::routes::{health_check, subscribe};
 use actix_web::dev::Server;
 use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::postgres::PgPoolOptions;
+use sqlx::PgPool;
 use std::net::TcpListener;
 use tracing_actix_web::TracingLogger;
 
@@ -35,9 +34,10 @@ impl Application {
             "{}:{}",
             configuration.application.host, configuration.application.port
         );
-        let listener = TcpListener::bind(address)?;
+        let listener = TcpListener::bind(&address)?;
         let port = listener.local_addr().unwrap().port();
         let server = run(listener, connection_pool, email_client)?;
+
         Ok(Self { port, server })
     }
 
@@ -45,10 +45,11 @@ impl Application {
         self.port
     }
 
-    pub async fn run_untill_stopped(self) -> Result<(), std::io::Error> {
+    pub async fn run_until_stopped(self) -> Result<(), std::io::Error> {
         self.server.await
     }
 }
+
 pub async fn get_connection_pool(configuration: &DatabaseSettings) -> Result<PgPool, sqlx::Error> {
     PgPoolOptions::new()
         .connect_timeout(std::time::Duration::from_secs(2))
@@ -56,7 +57,7 @@ pub async fn get_connection_pool(configuration: &DatabaseSettings) -> Result<PgP
         .await
 }
 
-pub fn run(
+fn run(
     listener: TcpListener,
     db_pool: PgPool,
     email_client: EmailClient,
@@ -65,10 +66,11 @@ pub fn run(
     let email_client = Data::new(email_client);
     let server = HttpServer::new(move || {
         App::new()
-            .wrap(TracingLogger)
+            .wrap(TracingLogger::default())
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
             .app_data(db_pool.clone())
+            .app_data(email_client.clone())
     })
     .listen(listener)?
     .run();
